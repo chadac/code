@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "code-cli"
+version = "0.1.0"
+description = "Manage personal files for open repositories."
+authors = ["Chad Crawford <chad@cacrawford.org>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "code_cli", from = "src" }]
+include = [{ path = "tests", format = "sdist" }]
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+cleo = "^1.0.0a5"
+typing-extensions = "^4.4.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.2.0"
+
+[tool.poetry.group.dev.dependencies]
+jedi = "<=0.17.2"
+epc = "^0.0.5"
+
+
+[tool.poetry.group.typing.dependencies]
+mypy = "^0.991"
+
+
+[tool.poetry.group.linting.dependencies]
+flake8 = "^5.0.4"
+black = "^22.10.0"
+isort = "^5.10.1"
+
+[tool.poetry.scripts]
+code-cli = "code_cli.application:main"
+
+[tool.isort]
+py_version = 37
+profile = "black"
+
+[tool.black]
+target-version = ['py37']
+preview = true
+
+[tool.mypy]
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = [
+  'cleo.*'
+]
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+GIT=git
+CODE_CLI=code-cli
+
+case $1 in
+    add|mv|restore|rm|bisect|diff|grep|log|show|status|branch|commit|merge|rebase|reset|switch|tag|fetch|pull|push)
+        GIT_ARGS=$($CODE_CLI git-args)
+        $GIT $GIT_ARGS $@
+        ;;
+    *)
+        $CODE_CLI $@
+        ;;
+esac
