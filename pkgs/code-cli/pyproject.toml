@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code-cli"
+version = "0.1"
+description = "Applicaiton for pulling down dependencies for the Code CLI utility."
+requires-python = ">=3.8"
+
+[project.scripts]
+code = "code_cli.cli:main"
