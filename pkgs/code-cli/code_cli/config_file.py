@@ -35,8 +35,8 @@ class LocalRepository:
     @cached_property
     def _git_args(self) -> list[str]:
         return [
-            f"--git-dir='{str(self.path / '.git')}'",
-            f"--work-tree='{str(self.root)}'",
+            f"--git-dir={str(self.path)}",
+            f"--work-tree={str(self.root)}",
         ]
 
     def run_git(self, args: str | list[str], **kwargs) -> None:
@@ -71,11 +71,11 @@ class LocalRepository:
         return self.path.exists()
 
     def _clone(self) -> None:
-        args = ["clone"]
+        git.run(["clone", "--bare", self.url, str(self.path)])
         if self.branch is not None:
-            args += ["-b", self.branch]
-        args += [self.url, str(self.path)]
-        git.run(args)
+            self.run_git(["checkout", self.branch])
+        else:
+            self.run_git(["checkout"])
 
     def _init(self) -> None:
         git.run(["init", "--bare", str(self.path)])
