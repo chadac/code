@@ -10,3 +10,14 @@ requires-python = ">=3.8"
 
 [project.scripts]
 code = "code_cli.cli:main"
+
+[tool.isort]
+py_version = 38
+profile = "black"
+
+[tool.black]
+target-version = ["py37"]
+preview = true
+
+[tool.mypy]
+files = ["code_cli", "tests"]

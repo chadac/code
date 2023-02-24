@@ -17,8 +17,8 @@
       pyPreferred = lib.last pyVers;
       codePkgs = listToAttrs (map (pyVer: {
         name = "code-cli-${pyVer}";
-        value = pkgs.callPackage ./pkgs/code-cli {
-          python = pkgs.${pyPreferred};
+        value = pkgs.callPackage ./code-cli {
+          python3 = pkgs.${pyPreferred};
         };
       }) pyVers);
     in {

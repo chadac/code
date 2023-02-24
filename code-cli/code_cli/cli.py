@@ -10,29 +10,32 @@ import textwrap
 from pathlib import Path
 import sys
 
-from code_cli import git, config_file
+from code_cli import git
+from code_cli.code import Code
 from code_cli.config_file import Config
 
 
-config: Config = None  # type: ignore
-
-
 def print_help() -> None:
-    print(textwrap.dedent("""\
+    print(
+        textwrap.dedent(
+            """\
     usage: code <command> [<args>]
-    
-    If <command> is a general Git command, it runs Git for your local files.
-    
+
+    If <command> is a general Git command, it runs Git for your dev files.
+
     Sync commands:
-      sync-git     Pulls changes from all Git repositories tracked by code.
-      sync-files   Pulls updates to local files.
-    
+      sync     Pulls changes from all Git repositories tracked by code.
+
     Utility commands:
       path         Print the path to the local file repository.
-    """.strip("\n")))
+    """.strip(
+                "\n"
+            )
+        )
+    )
 
 
-def do_sync_git(args: list[str]) -> None:
+def do_sync(code: Code, args: list[str]) -> None:
     """
     Update remotes for all Git repositories.
 
@@ -42,30 +45,24 @@ def do_sync_git(args: list[str]) -> None:
     3. Update any branches that are tracked to be updated.
     """
     failed = False
-    for repository in config.repositories:
+    for repository in code.repositories:
         try:
             repository.sync_git()
         except Exception as e:
+            # TODO: Make this nicer!
             print(f"{repository}: sync failed: {e}", file=sys.stderr)
+            failed = True
+    for dev_repo in code.dev_repos:
+        try:
+            dev_repo.create()
+        except Exception as e:
+            print(f"{dev_repo}: create failed: {e}", file=sys.stderr)
             failed = True
     if failed:
         exit(1)
 
 
-def do_sync_local(args: list[str]) -> None:
-    """
-    Pulls down any new files or changes to existing local files.
-    """
-    for remote in config.local_repos:
-        remote.create()
-        try:
-            remote.pull()
-        except git.GitError as e:
-            print(f"{remote}: git pull failed: {e}", file=sys.stderr)
-            raise e
-
-
-def do_path(args: list[str]) -> None:
+def do_path(code: Code, args: list[str]) -> None:
     """
     Print the path of the directory storing the local Git repository.
     """
@@ -74,12 +71,12 @@ def do_path(args: list[str]) -> None:
     print(str(remote.path))
 
 
-def do_git(args: list[str]) -> None:
+def do_git(code: Code, args: list[str]) -> None:
     """
     Runs Git command with args to use the local file repository instead.
     """
-    remote = config.get_local_repo()
-    remote.create()
+    remote = code.get_devfiles_repo()
+    remote.ensure()
     remote.run_git(args, shell=True)
 
 
@@ -91,12 +88,10 @@ def main() -> None:
         print_help()
         exit(0)
 
-    config = config_file.load()
+    code = Code.init()
 
-    if args[0] == "sync-git":
-        do_sync_git(args[1:])
-    elif args[0] == "sync-files":
-        do_sync_local(args[1:])
+    if args[0] == "sync":
+        do_sync(args[1:])
     elif args[0] == "path":
         do_path(args[1:])
     else:

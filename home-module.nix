@@ -6,7 +6,7 @@ let
   cfg = config.services.code;
   homeDirectory = config.home.homeDirectory;
 
-  localRepositoryType = types.submodule {
+  devFilesRepoType = types.submodule {
     options = {
       url = mkOption {
         type = types.str;
@@ -34,18 +34,13 @@ let
       branch = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "Tracking branch to update.";
+        description = "If set, this branch will track and regularly update to follow the given upstream.";
       };
-     };
+    };
   };
 
   repositoryType = types.submodule {
     options = {
-      localRepository = mkOption {
-        type = types.nullOr localRepositoryType;
-        default = null;
-        description = "Git repository for tracking local files.";
-      };
       remotes = types.listOf remoteType;
     };
   };
@@ -87,12 +82,11 @@ in
         '';
       };
 
-      localRepository = mkOption {
-        type = types.nullOr localRepositoryType;
+      devFiles = mkOption {
+        type = types.nullOr (types.attrsOf devFilesRepoType);
         default = null;
         description = ''
-          Default Git repository for tracking local files. If null, this
-          feature is unused.
+          Remotes of Git repositories that will track dev files.
         '';
       };
 
@@ -110,7 +104,7 @@ in
 
     systemd.user.services.update-code = {
       description = "Update local Git repositories.";
-      script = "${pkgs.code-cli}/bin/code sync-git";
+      script = "${pkgs.code-cli}/bin/code sync";
     };
 
     systemd.user.timers.update-code = {

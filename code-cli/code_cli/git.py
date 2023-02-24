@@ -20,11 +20,7 @@ def run(args: str | list[str], **kwargs) -> None:
         error_msg = None
         if r.stderr is not None:
             error_msg = r.stderr.decode()
-        raise GitError(
-            cmd,
-            cwd=kwargs.get("cwd"),
-            error=error_msg
-        )
+        raise GitError(cmd, cwd=kwargs.get("cwd"), error=error_msg)
 
 
 def check(args: str | list[str], **kwargs) -> str:
@@ -35,11 +31,7 @@ def check(args: str | list[str], **kwargs) -> str:
         error_msg = None
         if r.stderr is not None:
             error_msg = r.stderr.decode()
-        raise GitError(
-            cmd,
-            cwd=kwargs.get("cwd"),
-            error=error_msg
-        )
+        raise GitError(cmd, cwd=kwargs.get("cwd"), error=error_msg)
     return r
 
 

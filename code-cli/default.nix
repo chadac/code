@@ -1,10 +1,12 @@
-{ pkgs, lib, python, git }:
-with python.pkgs;
+{ pkgs, lib, python3, git }:
+with python3.pkgs;
 buildPythonApplication {
   pname = "code";
-  version = "0.1";
+  version = "1.0";
   src = lib.cleanSource ./.;
   format = "pyproject";
+
+  buildInputs = [ cattrs ];
 
   doCheck = true;
   checkInputs = [ pytest pytest-mock mypy flake8 ];
