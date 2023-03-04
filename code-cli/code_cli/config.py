@@ -13,21 +13,21 @@ from code_cli.constants import CONFIG_PATH
 
 
 @frozen
-class DevFilesRepoConfig:
+class DevRepoConfig:
     url: str
     branch: str | None
 
 
 @frozen
-class RemoteConfig:
+class CodeRepoRemoteConfig:
     name: str
     url: str
     branch: str | None = None
 
 
 @frozen
-class RepoConfig:
-    remotes: list[RemoteConfig]
+class CodeRepoConfig:
+    remotes: list[CodeRepoRemoteConfig]
 
 
 @frozen
@@ -36,8 +36,8 @@ class Config:
     package: str
     root: str
     interval: str
-    devFiles: dict[str, DevFilesRepoConfig]
-    repositories: dict[str, RepoConfig]
+    devRepos: dict[str, DevRepoConfig]
+    codeRepos: dict[str, CodeRepoConfig]
 
     @property
     def root_path(self) -> Path:

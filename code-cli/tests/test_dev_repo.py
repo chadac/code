@@ -4,23 +4,23 @@ import pytest
 
 from pathlib import Path
 
-from code_cli.dev_files import DevFilesRepo
+from code_cli.dev_repo import DevRepo
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
 @pytest.fixture
-def dev_repo_a() -> DevFilesRepo:
-    return DevFilesRepo(
-        url="git@github.com:example/repo_a.git", branch="main", root=Path("/a/b/c")
+def dev_repo_a() -> DevRepo:
+    return DevRepo(
+        url="git@github.com:example/repo_a.git", branch="main", root=Path("/a/b/c"), prefix="."
     )
 
 
 @pytest.fixture
-def dev_repo_b() -> DevFilesRepo:
-    return DevFilesRepo(
-        url="git@github.com:example/repo_b.git", branch=None, root=Path("/a/b/c")
+def dev_repo_b() -> DevRepo:
+    return DevRepo(
+        url="git@github.com:example/repo_b.git", branch=None, root=Path("/a/b/c"), prefix="./private"
     )
 
 
@@ -38,7 +38,7 @@ def git_args_a(share_path: Path) -> list[str]:
     ]
 
 
-def test_repo_id_consistent(dev_repo_a: DevFilesRepo, dev_repo_b: DevFilesRepo) -> None:
+def test_repo_id_consistent(dev_repo_a: DevRepo, dev_repo_b: DevRepo) -> None:
     """
     Code changes should never change repo ID's to be anything different.
 
@@ -56,12 +56,12 @@ def test_repo_id_consistent(dev_repo_a: DevFilesRepo, dev_repo_b: DevFilesRepo) 
     )
 
 
-def test_git_args(dev_repo_a: DevFilesRepo, git_args_a: list[str]) -> None:
+def test_git_args(dev_repo_a: DevRepo, git_args_a: list[str]) -> None:
     assert dev_repo_a._git_args == git_args_a
 
 
 def test_run_git(
-    dev_repo_a: DevFilesRepo,
+    dev_repo_a: DevRepo,
     git_args_a: list[str],
     mocker: MockerFixture,
 ) -> None:
@@ -73,8 +73,8 @@ def test_run_git(
 
 
 def test_clone(
-    dev_repo_a: DevFilesRepo,
-    dev_repo_b: DevFilesRepo,
+    dev_repo_a: DevRepo,
+    dev_repo_b: DevRepo,
     mocker: MockerFixture,
 ) -> None:
     m = mocker.patch("code_cli.git.run")
@@ -95,8 +95,8 @@ def test_clone(
 
 
 def test_bare_init(
-    dev_repo_a: DevFilesRepo,
-    dev_repo_b: DevFilesRepo,
+    dev_repo_a: DevRepo,
+    dev_repo_b: DevRepo,
     mocker: MockerFixture,
 ) -> None:
     m = mocker.patch("code_cli.git.run")
@@ -115,3 +115,17 @@ def test_bare_init(
         mocker.call(dev_repo_b._git_args
                     + ["remote", "set-url", "origin", dev_repo_b.url]),
     ], any_order=False)
+
+
+def test_config(
+    dev_repo_a: DevRepo,
+    mocker: MockerFixture
+) -> None:
+    m = mocker.patch("code_cli.git.run")
+    dev_repo_a._config()
+    m.assert_called_with([
+        "config",
+        "--local",
+        "status.showUntrackedFiles",
+        "no"
+    ], cwd=dev_repo_a.path)

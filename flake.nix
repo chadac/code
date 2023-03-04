@@ -21,9 +21,13 @@
           python3 = pkgs.${pyPreferred};
         };
       }) pyVers);
+      code-cli = codePkgs."code-cli-${pyPreferred}";
     in {
       packages = codePkgs // {
         default = codePkgs."code-cli-${pyPreferred}";
+      };
+      devShells.default = pkgs.callPackage ./code-cli/shell.nix {
+        inherit code-cli;
       };
     }
   );

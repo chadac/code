@@ -6,7 +6,7 @@ buildPythonApplication {
   src = lib.cleanSource ./.;
   format = "pyproject";
 
-  buildInputs = [ cattrs ];
+  buildInputs = [ cattrs git ];
 
   doCheck = true;
   checkInputs = [ pytest pytest-mock mypy flake8 ];
@@ -22,4 +22,8 @@ buildPythonApplication {
   '';
 
   propagatedBuildInputs = [ setuptools git ];
+
+  passthru = {
+    inherit python3;
+  };
 }

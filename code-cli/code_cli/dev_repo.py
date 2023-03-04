@@ -7,13 +7,24 @@ import hashlib
 
 from code_cli import git
 from code_cli import constants
+from code_cli.config import DevRepoConfig
 
 
 @dataclass(frozen=True)
-class DevFilesRepo:
+class DevRepo:
     url: str
     branch: str | None
     root: Path
+    prefix: str
+
+    @classmethod
+    def init(cls, root: Path, prefix: str, config: DevRepoConfig) -> DevRepo:
+        return DevRepo(
+            config.url,
+            config.branch,
+            root,
+            prefix,
+        )
 
     @cached_property
     def id(self) -> str:

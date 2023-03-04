@@ -12,7 +12,6 @@ import sys
 
 from code_cli import git
 from code_cli.code import Code
-from code_cli.config_file import Config
 
 
 def print_help() -> None:
@@ -44,30 +43,14 @@ def do_sync(code: Code, args: list[str]) -> None:
     2. Fetch all changes from upstream remotes.
     3. Update any branches that are tracked to be updated.
     """
-    failed = False
-    for repository in code.repositories:
-        try:
-            repository.sync_git()
-        except Exception as e:
-            # TODO: Make this nicer!
-            print(f"{repository}: sync failed: {e}", file=sys.stderr)
-            failed = True
-    for dev_repo in code.dev_repos:
-        try:
-            dev_repo.create()
-        except Exception as e:
-            print(f"{dev_repo}: create failed: {e}", file=sys.stderr)
-            failed = True
-    if failed:
-        exit(1)
+    code.sync()
 
 
 def do_path(code: Code, args: list[str]) -> None:
     """
     Print the path of the directory storing the local Git repository.
     """
-    remote = config.get_local_repo()
-    remote.create()
+    remote = code.active_dev_repo
     print(str(remote.path))
 
 
@@ -75,9 +58,7 @@ def do_git(code: Code, args: list[str]) -> None:
     """
     Runs Git command with args to use the local file repository instead.
     """
-    remote = code.get_devfiles_repo()
-    remote.ensure()
-    remote.run_git(args, shell=True)
+    code.active_dev_repo.run_git(args, shell=True)
 
 
 def main() -> None:
@@ -91,8 +72,8 @@ def main() -> None:
     code = Code.init()
 
     if args[0] == "sync":
-        do_sync(args[1:])
+        do_sync(code, args[1:])
     elif args[0] == "path":
-        do_path(args[1:])
+        do_path(code, args[1:])
     else:
-        do_git(args)
+        do_git(code, args)
